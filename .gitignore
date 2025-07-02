@@ -15,3 +15,6 @@ buildNumber.properties
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+
+# ConnectionManager, does not need to be tracked for this project anymore and can have sensitive password info
+src\main\java\com\coburn\fh\connection\ConnectionManager.java

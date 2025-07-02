@@ -1,27 +1,27 @@
 package com.coburn.fh.dao;
 
 public class User {
-    private int userId;
+    private int id;
     private String name;
     private String username;
     private String userpass;
     private double progress;
 
-    public User(int userId, String name, String username, String userpass, double progress)
+    public User(int id, String name, String username, String userpass, double progress)
     {
-        this.userId = userId;
+        this.id = id;
         this.name = name;
         this.username = username;
         this.userpass = userpass;
         this.progress = progress;
     }
 
-    public int getUserId() {
-        return userId;
+    public int getId() {
+        return id;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -58,6 +58,6 @@ public class User {
 
     public String toString()
     {
-        return ("[ID: ?, Name: ?, Username: ?, Password: ?, List Progress: ?]", userId, name, username, userpass, progress);
+        return ("[ID: ?, Name: ?, Username: ?, Password: ?, List Progress: ?]", id, name, username, userpass, progress);
     }
 }
