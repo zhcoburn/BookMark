@@ -2,27 +2,27 @@ package com.coburn.fh.dao;
 
 public class Book {
 
-    private int bookId;
+    private int id;
     private String title;
     private String genre;
     private String author;
     private int pages;
 
-    public Book(int bookId, String title, String genre, String author, int pages)
+    public Book(int id, String title, String genre, String author, int pages)
     {
-        this.bookId = bookId;
+        this.id = id;
         this.title = title;
         this.genre = genre;
         this.author = author;
         this.pages = pages;
     }
     
-    public int getBookId() {
-        return bookId;
+    public int getId() {
+        return id;
     }
 
-    public void setBookId(int bookId) {
-        this.bookId = bookId;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -59,7 +59,7 @@ public class Book {
 
     public String toString()
     {
-        return ("ID ?: ?, by ?. Genre: ?, Pages: ?", bookId, title, author, genre, pages);
+        return ("ID ?: ?, by ?. Genre: ?, Pages: ?", id, title, author, genre, pages);
     }
 
 }

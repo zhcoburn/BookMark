@@ -15,12 +15,12 @@ public interface UserDao {
 
     public Optional<User> findById(int id);
 
-    public boolean update(User user);
+    public boolean update(User user) throws InvalidInputException;
 
     public boolean delete(int id);
 
-    public void add(User user) throws UserNotCreatedException;
+    public void add(User user) throws UserNotCreatedException, InvalidInputException;
 
-    public boolean logIn(String name, String pass) throws InvalidPasswordException;
+    public boolean logIn(String name, String pass) throws InvalidInputException;
     
 }
