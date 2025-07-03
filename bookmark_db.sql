@@ -58,4 +58,15 @@ INSERT INTO book(name, genre, author, pages) VALUES("T-SQL Fundamentals", "Educa
 
 	# Base User #
 
-INSERT INTO user(name, username, userpass, progress) VALUES("Root User", "root", "rootroot", 50.5);
+INSERT INTO user(name, username, userpass, progress) VALUES("Admin", "root", "rootroot", 50.5);
+
+	# Sample User #
+
+INSERT INTO user(name, username, userpass, progress) VALUES("John Doe", "user", "password", 0);
+
+INSERT INTO tracked_book(user_id, book_id, status, pages_read, progress) VALUES(10001, 10000, "Completed", 423, 100.0);
+INSERT INTO tracked_book(user_id, book_id, status, pages_read, progress) VALUES(10001, 10001, "In Progress", 200, 50.0);
+INSERT INTO tracked_book(user_id, book_id, status, pages_read, progress) VALUES(10001, 10003, "Not Started", 0, 0.0);
+INSERT INTO tracked_book(user_id, book_id, status, pages_read, progress) VALUES(10001, 10009, "In Progress", 215, 75.0);
+INSERT INTO tracked_book(user_id, book_id, status, pages_read, progress) VALUES(10001, 10013, "Completed", 281, 100.0);
+INSERT INTO tracked_book(user_id, book_id, status, pages_read, progress) VALUES(10001, 10012, "Not Started", 0, 0.0);

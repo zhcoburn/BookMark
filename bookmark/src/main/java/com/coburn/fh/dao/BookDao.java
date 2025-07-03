@@ -23,7 +23,7 @@ public interface BookDao {
 
     public void add(Book book) throws BookNotCreatedException, InvalidInputException;
 
-    public List<Book> getByGenre(String genre);
+    public List<Book> getByGenre(String genre) throws InvalidInputException;
 
-    public List<Book> getByAuthor(String author);
+    public List<Book> getByAuthor(String author) throws InvalidInputException;
 }

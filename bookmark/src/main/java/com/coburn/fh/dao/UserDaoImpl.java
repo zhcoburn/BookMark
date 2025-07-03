@@ -151,7 +151,7 @@ public class UserDaoImpl implements UserDao{
 			connection = ConnectionManager.getConnection();
 
             PreparedStatement pStmt = connection.prepareStatement("INSERT INTO user(name, username, userpass, progress) VALUES(\"" + user.getName() +
-			 "\", \"" + user.getUsername() + "\", \"" + user.getUserpass + "\", " + user.getProgress() + ")");
+			 "\", \"" + user.getUsername() + "\", \"" + user.getUserpass() + "\", " + user.getProgress() + ")");
 			
 			pStmt.executeUpdate();
 
