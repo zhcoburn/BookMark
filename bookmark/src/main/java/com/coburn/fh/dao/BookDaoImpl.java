@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import com.coburn.fh.connection.ConnectionManager;
 
-public class BookDaoImpl {
+public class BookDaoImpl implements BookDao{
     private Connection connection = null;
 
 	@Override
@@ -73,9 +73,41 @@ public class BookDaoImpl {
 			
 			rs.next();
 
-            String name = rs.getString(2);
-            String username = rs.getString(3);
-			String userpass = rs.getString(4);
+            String title = rs.getString(2);
+            String genre = rs.getString(3);
+			String author = rs.getString(4);
+			int pages = rs.getInt(5);
+
+            Book b = new Book(id, title, genre, author, pages);
+            Optional<Book> found = Optional.of(b);
+
+            return found;
+
+        } catch(SQLException e) {
+            System.out.println(e.getMessage());;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+		return Optional.empty();
+    }
+
+    @Override
+    public Optional<Book> findByTitle(String title)
+    {
+        try{
+            connection = ConnectionManager.getConnection();
+            PreparedStatement pStmt = connection.prepareStatement("SELECT * FROM book WHERE title = " + title);
+
+			//pStmt.setInt(1, id);
+
+            ResultSet rs = pStmt.executeQuery();
+			
+			rs.next();
+
+            int id = rs.getInt(1);
+            String genre = rs.getString(3);
+			String author = rs.getString(4);
 			int pages = rs.getInt(5);
 
             Book b = new Book(id, title, genre, author, pages);
@@ -149,17 +181,17 @@ public class BookDaoImpl {
 			pStmt.executeUpdate();
 
 		}catch(SQLException e) {
-			throw new UserNotCreatedException(book);
+			throw new BookNotCreatedException(book);
         } catch (Exception e) {
             e.printStackTrace();
-			throw new ChefNotCreatedException(book);
+			throw new BookNotCreatedException(book);
         }
     }
 
     @Override
     public List<Book> getByGenre(String genre) throws InvalidInputException
     {
-        if(author.contains(";"))
+        if(genre.contains(";"))
             throw new InvalidInputException();
         try{
             connection = ConnectionManager.getConnection();
@@ -172,7 +204,6 @@ public class BookDaoImpl {
             while(rs.next()) {
                 int id = rs.getInt(1);
                 String title = rs.getString(2);
-                String genre = rs.getString(3);
 				String author = rs.getString(4);
 				int pages = rs.getInt(5);
 
@@ -209,7 +240,6 @@ public class BookDaoImpl {
                 int id = rs.getInt(1);
                 String title = rs.getString(2);
                 String genre = rs.getString(3);
-				String author = rs.getString(4);
 				int pages = rs.getInt(5);
 
 

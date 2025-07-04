@@ -58,6 +58,6 @@ public class User {
 
     public String toString()
     {
-        return ("[ID: ?, Name: ?, Username: ?, Password: ?, List Progress: ?]", id, name, username, userpass, progress);
+        return ("[ID: " + id + "Name: " + name + ", Username: " + username + ", Password: " + userpass + ", List Progress: " + progress + "]");
     }
 }

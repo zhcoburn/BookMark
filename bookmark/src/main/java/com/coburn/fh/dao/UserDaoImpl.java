@@ -159,20 +159,20 @@ public class UserDaoImpl implements UserDao{
 			throw new UserNotCreatedException(user);
         } catch (Exception e) {
             e.printStackTrace();
-			throw new ChefNotCreatedException(user);
+			throw new UserNotCreatedException(user);
         }
     }
 
     @Override
-    public Optional<User> logIn(String name, String pass) throws InvalidInputException
+    public Optional<User> logIn(String username, String pass) throws InvalidInputException
     {
         // Start by checking the username and password to ensure there isn't SQL injection
-        if(name.contains(" ") || name.contains(";") || pass.contains(" ") || pass.contains(";"))
+        if(username.contains(" ") || username.contains(";") || pass.contains(" ") || pass.contains(";"))
             throw new InvalidInputException();
         
         try{
             connection = ConnectionManager.getConnection();
-            PreparedStatement pStmt = connection.prepareStatement("SELECT * FROM user WHERE username = " + name + " AND userpass = " + pass);
+            PreparedStatement pStmt = connection.prepareStatement("SELECT * FROM user WHERE username = " + username + " AND userpass = " + pass);
 
 			//pStmt.setInt(1, id);
 
@@ -184,7 +184,7 @@ public class UserDaoImpl implements UserDao{
             String name = rs.getString(2);
 			double progress = rs.getDouble(5);
 
-            User u = new User(id, name, username, userpass, progress);
+            User u = new User(id, name, username, pass, progress);
             Optional<User> found = Optional.of(u);
 
             return found;

@@ -18,7 +18,7 @@ public class TrackedBook extends Book{
 
     public void updateProgress()
     {
-        progress = (pagesRead / (double)pages) * 100;
+        progress = (pagesRead / this.getPages()) * 100;
 
         
         if(progress == 100)
@@ -57,7 +57,7 @@ public class TrackedBook extends Book{
     @Override
     public void setPages(int pages)
     {
-        super(pages);
+        super.setPages(pages);
         updateProgress();
     }
 

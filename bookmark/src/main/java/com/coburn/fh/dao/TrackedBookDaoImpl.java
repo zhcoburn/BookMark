@@ -41,7 +41,6 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
                 int bookId = rs.getInt(2);
                 String status = rs.getString(3);
                 int pagesRead = rs.getInt(4);
-                double progress = rs.getDouble(5);
                 String title = rs.getString(7);
                 String genre = rs.getString(8);
 				String author = rs.getString(9);
@@ -71,43 +70,43 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
         switch(filter)
         {
             case 1:
-                filterType = "book.title ASC"
+                filterType = "book.title ASC";
                 break;
             case 2:
-                filterType = "book.title DESC"
+                filterType = "book.title DESC";
                 break;
             case 3:
-                filterType = "book.genre ASC"
+                filterType = "book.genre ASC";
                 break;
             case 4:
-                filterType = "book.genre DESC"
+                filterType = "book.genre DESC";
                 break;
             case 5:
-                filterType = "book.author ASC"
+                filterType = "book.author ASC";
                 break;
             case 6:
-                filterType = "book.author DESC"
+                filterType = "book.author DESC";
                 break;
             case 7:
-                filterType = "book.pages ASC"
+                filterType = "book.pages ASC";
                 break;
             case 8:
-                filterType = "book.pages DESC"
+                filterType = "book.pages DESC";
                 break;
             case 9:
-                filterType = "book.pages ASC"
+                filterType = "book.pages ASC";
                 break;
             case 10:
-                filterType = "book.pages DESC"
+                filterType = "book.pages DESC";
                 break;
             case 11:
-                filterType = "tracked_book.progress ASC"
+                filterType = "tracked_book.progress ASC";
                 break;
             case 12:
-                filterType = "tracked_book.progress DESC"
+                filterType = "tracked_book.progress DESC";
                 break;
             default:
-                filterType = "tracked_book.book_id ASC"
+                filterType = "tracked_book.book_id ASC";
                 break;
         }
         try{
@@ -122,7 +121,6 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
                 int bookId = rs.getInt(2);
                 String status = rs.getString(3);
                 int pagesRead = rs.getInt(4);
-                double progress = rs.getDouble(5);
                 String title = rs.getString(7);
                 String genre = rs.getString(8);
 				String author = rs.getString(9);
@@ -150,7 +148,7 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
     {
         try{
             connection = ConnectionManager.getConnection();
-            PreparedStatement pStmt = connection.prepareStatement("SELECT * FROM tracked_book LEFT JOIN book ON tracked_book.book_id = book.book_id WHERE tracked_book.user_id = " + userId + " AND tracked_book.book_id = " bookId);
+            PreparedStatement pStmt = connection.prepareStatement("SELECT * FROM tracked_book LEFT JOIN book ON tracked_book.book_id = book.book_id WHERE tracked_book.user_id = " + userId + " AND tracked_book.book_id = " + bookId);
 
 			//pStmt.setInt(1, id);
 
@@ -160,7 +158,6 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
 
             String status = rs.getString(3);
             int pagesRead = rs.getInt(4);
-            double progress = rs.getDouble(5);
             String title = rs.getString(7);
             String genre = rs.getString(8);
 			String author = rs.getString(9);
@@ -168,7 +165,44 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
 
             Book b = new Book(bookId, title, genre, author, pages);
             TrackedBook tb = new TrackedBook(userId, b, status, pagesRead);
-            Optional<Book> found = Optional.of(tb);
+            Optional<TrackedBook> found = Optional.of(tb);
+
+            return found;
+
+        } catch(SQLException e) {
+            System.out.println(e.getMessage());;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+		return Optional.empty();
+    }
+
+    @Override
+    public Optional<TrackedBook> findByTitle(int userId, String title) throws InvalidInputException
+    {
+        if(title.contains(";"))
+            throw new InvalidInputException();
+        try{
+            connection = ConnectionManager.getConnection();
+            PreparedStatement pStmt = connection.prepareStatement("SELECT * FROM tracked_book LEFT JOIN book ON tracked_book.book_id = book.book_id WHERE tracked_book.user_id = " + userId + " AND book.title = \"" + title + "\"");
+
+			//pStmt.setInt(1, id);
+
+            ResultSet rs = pStmt.executeQuery();
+			
+			rs.next();
+
+            int bookId = rs.getInt(2);
+            String status = rs.getString(3);
+            int pagesRead = rs.getInt(4);
+            String genre = rs.getString(8);
+			String author = rs.getString(9);
+			int pages = rs.getInt(10);
+
+            Book b = new Book(bookId, title, genre, author, pages);
+            TrackedBook tb = new TrackedBook(userId, b, status, pagesRead);
+            Optional<TrackedBook> found = Optional.of(tb);
 
             return found;
 
@@ -193,7 +227,7 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
 
             PreparedStatement pStmt = connection.prepareStatement("UPDATE tracked_book SET pages_read = " + book.getPagesRead() +
 			 ", status = \"" + book.getStatus() + "\", progress = " + book.getProgress() + " WHERE user_id = " +
-            book.getUserId() + " AND book_id = " + book.getBookId());
+            book.getUserId() + " AND book_id = " + book.getId());
 			
 			pStmt.executeUpdate();
 
@@ -208,16 +242,16 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
     
 
     @Override
-    public boolean delete(int id)
+    public boolean delete(int userId, int bookId)
     {
         try{
-			Optional<TrackedBook> b = findById(id);
+			Optional<TrackedBook> b = findById(userId, bookId);
 			if(b.isEmpty())
 				return false;
 
 			connection = ConnectionManager.getConnection();
 
-            PreparedStatement pStmt = connection.prepareStatement("DELETE FROM book WHERE book_id = " + id);
+            PreparedStatement pStmt = connection.prepareStatement("DELETE FROM tracked_book WHERE book_id = " + bookId + " AND user_id = " + userId);
 			
 			pStmt.executeUpdate();
 
@@ -241,15 +275,15 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
 			connection = ConnectionManager.getConnection();
 
             PreparedStatement pStmt = connection.prepareStatement("INSERT INTO tracked_book(user_id, book_id, status, pages_read, progress) VALUES(" +
-            book.getUserId() + ", " + book.getBookId() + ", \"" + book.getStatus() + "\", " + book.getPagesRead() + ", " + book.getProgress() ")");
+            book.getUserId() + ", " + book.getId() + ", \"" + book.getStatus() + "\", " + book.getPagesRead() + ", " + book.getProgress() + ")");
 			
 			pStmt.executeUpdate();
 
 		}catch(SQLException e) {
-			throw new UserNotCreatedException(book);
+			throw new BookNotCreatedException(book);
         } catch (Exception e) {
             e.printStackTrace();
-			throw new ChefNotCreatedException(book);
+			throw new BookNotCreatedException(book);
         }
     }
 
@@ -270,7 +304,6 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
                 int bookId = rs.getInt(2);
                 String status = rs.getString(3);
                 int pagesRead = rs.getInt(4);
-                double progress = rs.getDouble(5);
                 String title = rs.getString(7);
 				String author = rs.getString(9);
 				int pages = rs.getInt(10);
@@ -309,7 +342,6 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
                 int bookId = rs.getInt(2);
                 String status = rs.getString(3);
                 int pagesRead = rs.getInt(4);
-                double progress = rs.getDouble(5);
                 String title = rs.getString(7);
                 String genre = rs.getString(8);
 				int pages = rs.getInt(10);

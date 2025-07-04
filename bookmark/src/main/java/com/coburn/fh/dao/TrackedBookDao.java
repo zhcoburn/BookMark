@@ -17,9 +17,9 @@ public interface TrackedBookDao {
 
     public Optional<TrackedBook> findById(int userId, int bookId);
 
-    public Optional<TrackedBook> findByTitle(int userId, String title);
+    public Optional<TrackedBook> findByTitle(int userId, String title) throws InvalidInputException;
 
-    public boolean updatePages(trackedBook book) throws PageOutOfBoundsException;
+    public boolean updatePages(TrackedBook book) throws PageOutOfBoundsException;
 
     public boolean delete(int userId, int bookId);
 

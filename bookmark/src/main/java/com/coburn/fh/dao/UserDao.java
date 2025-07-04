@@ -21,6 +21,6 @@ public interface UserDao {
 
     public void add(User user) throws UserNotCreatedException, InvalidInputException;
 
-    public boolean logIn(String name, String pass) throws InvalidInputException;
+    public Optional<User> logIn(String name, String pass) throws InvalidInputException;
     
 }

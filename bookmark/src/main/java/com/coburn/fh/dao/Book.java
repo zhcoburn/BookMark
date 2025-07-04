@@ -57,9 +57,12 @@ public class Book {
         this.pages = pages;
     }
 
-    public String toString()
-    {
-        return ("ID ?: ?, by ?. Genre: ?, Pages: ?", id, title, author, genre, pages);
+    @Override
+    public String toString() {
+        return "Book id: " + id + ". " + title + ", by " + author + ". Genre: " + genre + ", Pages: " + pages
+                + ".";
     }
+
+    
 
 }
