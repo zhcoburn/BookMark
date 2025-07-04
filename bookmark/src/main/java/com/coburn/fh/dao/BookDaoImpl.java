@@ -99,8 +99,8 @@ public class BookDaoImpl {
 			connection = ConnectionManager.getConnection();
 
             PreparedStatement pStmt = connection.prepareStatement("UPDATE book SET title = \"" + book.getTitle() +
-			 "\", genre = \"" + book.getGenre() + "\", author = " + book.getAuthor() + 
-			 ", pages = " + book.getPages() + " WHERE book_id = " + book.getId());
+			 "\", genre = \"" + book.getGenre() + "\", author = \"" + book.getAuthor() + 
+			 "\", pages = " + book.getPages() + " WHERE book_id = " + book.getId());
 			
 			pStmt.executeUpdate();
 

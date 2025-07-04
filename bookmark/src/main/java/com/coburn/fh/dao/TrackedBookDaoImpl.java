@@ -182,15 +182,18 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
     }
 
     @Override
-    public boolean updatePages(TrackedBook book)
+    public boolean updatePages(TrackedBook book) throws PageOutOfBoundsException
     {
-        if(book.getPagesRead() > book.getPages() || )
+        if(book.getPagesRead() > book.getPages() || book.getPagesRead() < book.getPages())
+            throw new PageOutOfBoundsException(book.getPagesRead());
+        book.updateProgress();
+
         try{
 			connection = ConnectionManager.getConnection();
 
-            PreparedStatement pStmt = connection.prepareStatement("UPDATE book SET title = \"" + book.getTitle() +
-			 "\", genre = \"" + book.getGenre() + "\", author = " + book.getAuthor() + 
-			 ", pages = " + book.getPages() + " WHERE book_id = " + book.getId());
+            PreparedStatement pStmt = connection.prepareStatement("UPDATE tracked_book SET pages_read = " + book.getPagesRead() +
+			 ", status = \"" + book.getStatus() + "\", progress = " + book.getProgress() + " WHERE user_id = " +
+            book.getUserId() + " AND book_id = " + book.getBookId());
 			
 			pStmt.executeUpdate();
 
@@ -208,7 +211,7 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
     public boolean delete(int id)
     {
         try{
-			Optional<Book> b = findById(id);
+			Optional<TrackedBook> b = findById(id);
 			if(b.isEmpty())
 				return false;
 
@@ -228,13 +231,17 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
     }
 
     @Override
-    public void add(Book book) throws BookNotCreatedException, InvalidInputException
+    public void add(TrackedBook book) throws BookNotCreatedException, PageOutOfBoundsException
     {
+        if(book.getPagesRead() > book.getPages() || book.getPagesRead() < book.getPages())
+            throw new PageOutOfBoundsException(book.getPagesRead());
+        book.updateProgress();
+
         try{
 			connection = ConnectionManager.getConnection();
 
-            PreparedStatement pStmt = connection.prepareStatement("INSERT INTO book(title, genre, author, pages) VALUES(\"" + book.getTitle() +
-			 "\", \"" + book.getGenre() + "\", \"" + book.getAuthor() + "\", " + book.getPages() + ")");
+            PreparedStatement pStmt = connection.prepareStatement("INSERT INTO tracked_book(user_id, book_id, status, pages_read, progress) VALUES(" +
+            book.getUserId() + ", " + book.getBookId() + ", \"" + book.getStatus() + "\", " + book.getPagesRead() + ", " + book.getProgress() ")");
 			
 			pStmt.executeUpdate();
 
@@ -247,28 +254,31 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
     }
 
     @Override
-    public List<Book> getByGenre(String genre) throws InvalidInputException
+    public List<TrackedBook> getByGenre(int userId, String genre) throws InvalidInputException
     {
-        if(author.contains(";"))
+        if(genre.contains(";"))
             throw new InvalidInputException();
         try{
             connection = ConnectionManager.getConnection();
-            PreparedStatement pStmt = connection.prepareStatement("SELECT * FROM book WHERE genre = \"" + genre + "\"");
+            PreparedStatement pStmt = connection.prepareStatement("SELECT * FROM tracked_book WHERE genre = \"" + genre + "\" AND userId = " + userId);
 
             ResultSet rs = pStmt.executeQuery();
 
-            List<Book> books = new ArrayList<>();
+            List<TrackedBook> books = new ArrayList<>();
 
             while(rs.next()) {
-                int id = rs.getInt(1);
-                String title = rs.getString(2);
-                String genre = rs.getString(3);
-				String author = rs.getString(4);
-				int pages = rs.getInt(5);
+                int bookId = rs.getInt(2);
+                String status = rs.getString(3);
+                int pagesRead = rs.getInt(4);
+                double progress = rs.getDouble(5);
+                String title = rs.getString(7);
+				String author = rs.getString(9);
+				int pages = rs.getInt(10);
 
 
-                Book b = new Book(id, title, genre, author, pages);
-                books.add(b);
+                Book b = new Book(bookId, title, genre, author, pages);
+                TrackedBook tb = new TrackedBook(userId, b, status, pagesRead);
+                books.add(tb);
             }
 
             return books;
@@ -283,28 +293,31 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
     }
 
     @Override
-    public List<Book> getByAuthor(String author) throws InvalidInputException
+    public List<TrackedBook> getByAuthor(int userId, String author) throws InvalidInputException
     {
         if(author.contains(";"))
             throw new InvalidInputException();
         try{
             connection = ConnectionManager.getConnection();
-            PreparedStatement pStmt = connection.prepareStatement("SELECT * FROM book WHERE author = \"" + author + "\"");
+            PreparedStatement pStmt = connection.prepareStatement("SELECT * FROM book WHERE author = \"" + author + "\" AND userId = " + userId);
 
             ResultSet rs = pStmt.executeQuery();
 
-            List<Book> books = new ArrayList<>();
+            List<TrackedBook> books = new ArrayList<>();
 
             while(rs.next()) {
-                int id = rs.getInt(1);
-                String title = rs.getString(2);
-                String genre = rs.getString(3);
-				String author = rs.getString(4);
-				int pages = rs.getInt(5);
+                int bookId = rs.getInt(2);
+                String status = rs.getString(3);
+                int pagesRead = rs.getInt(4);
+                double progress = rs.getDouble(5);
+                String title = rs.getString(7);
+                String genre = rs.getString(8);
+				int pages = rs.getInt(10);
 
 
-                Book b = new Book(id, title, genre, author, pages);
-                books.add(b);
+                Book b = new Book(bookId, title, genre, author, pages);
+                TrackedBook tb = new TrackedBook(userId, b, status, pagesRead);
+                books.add(tb);
             }
 
             return books;

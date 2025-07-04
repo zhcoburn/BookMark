@@ -23,7 +23,7 @@ public interface TrackedBookDao {
 
     public boolean delete(int userId, int bookId);
 
-    public void add(TrackedBook book) throws BookNotCreatedException, InvalidInputException, PageOutOfBoundsException;
+    public void add(TrackedBook book) throws BookNotCreatedException, PageOutOfBoundsException;
 
     public List<TrackedBook> getByGenre(int userId, String genre) throws InvalidInputException;
 
