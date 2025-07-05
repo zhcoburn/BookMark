@@ -28,4 +28,6 @@ public interface TrackedBookDao {
     public List<TrackedBook> getByGenre(int userId, String genre) throws InvalidInputException;
 
     public List<TrackedBook> getByAuthor(int userId, String author) throws InvalidInputException;
+
+    public double getTotalProgress(int userId);
 }

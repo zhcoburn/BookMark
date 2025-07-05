@@ -48,7 +48,7 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
 
 
                 Book b = new Book(bookId, title, genre, author, pages);
-                TrackedBook tb = new TrackedBook(userId, b, status, pagesRead);
+                TrackedBook tb = new TrackedBook(userId, b, pagesRead);
                 books.add(tb);
             }
 
@@ -128,7 +128,7 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
 
 
                 Book b = new Book(bookId, title, genre, author, pages);
-                TrackedBook tb = new TrackedBook(userId, b, status, pagesRead);
+                TrackedBook tb = new TrackedBook(userId, b, pagesRead);
                 books.add(tb);
             }
 
@@ -164,13 +164,12 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
 			int pages = rs.getInt(10);
 
             Book b = new Book(bookId, title, genre, author, pages);
-            TrackedBook tb = new TrackedBook(userId, b, status, pagesRead);
+            TrackedBook tb = new TrackedBook(userId, b, pagesRead);
             Optional<TrackedBook> found = Optional.of(tb);
 
             return found;
 
         } catch(SQLException e) {
-            System.out.println(e.getMessage());;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -201,13 +200,12 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
 			int pages = rs.getInt(10);
 
             Book b = new Book(bookId, title, genre, author, pages);
-            TrackedBook tb = new TrackedBook(userId, b, status, pagesRead);
+            TrackedBook tb = new TrackedBook(userId, b, pagesRead);
             Optional<TrackedBook> found = Optional.of(tb);
 
             return found;
 
         } catch(SQLException e) {
-            System.out.println(e.getMessage());;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -218,7 +216,7 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
     @Override
     public boolean updatePages(TrackedBook book) throws PageOutOfBoundsException
     {
-        if(book.getPagesRead() > book.getPages() || book.getPagesRead() < book.getPages())
+        if(book.getPagesRead() > book.getPages() || book.getPagesRead() < 0)
             throw new PageOutOfBoundsException(book.getPagesRead());
         book.updateProgress();
 
@@ -233,7 +231,6 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
 
 			return true;
 		}catch(SQLException e) {
-            System.out.println(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -310,7 +307,7 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
 
 
                 Book b = new Book(bookId, title, genre, author, pages);
-                TrackedBook tb = new TrackedBook(userId, b, status, pagesRead);
+                TrackedBook tb = new TrackedBook(userId, b, pagesRead);
                 books.add(tb);
             }
 
@@ -348,7 +345,7 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
 
 
                 Book b = new Book(bookId, title, genre, author, pages);
-                TrackedBook tb = new TrackedBook(userId, b, status, pagesRead);
+                TrackedBook tb = new TrackedBook(userId, b, pagesRead);
                 books.add(tb);
             }
 
@@ -361,5 +358,29 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
         }
 
         return null;
+    }
+
+    public double getTotalProgress(int userId)
+    {
+        try{
+            connection = ConnectionManager.getConnection();
+            PreparedStatement pStmt = connection.prepareStatement("SELECT user_id, AVG(progress) FROM tracked_book WHERE user_id = " + userId + " GROUP BY user_id");
+
+			//pStmt.setInt(1, id);
+
+            ResultSet rs = pStmt.executeQuery();
+			
+            if(!rs.wasNull())
+            {
+                rs.next();
+
+                return rs.getDouble(2);
+            }
+        } catch(SQLException e) {
+            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 100;
     }
 }

@@ -1,16 +1,17 @@
 package com.coburn.fh.dao;
 
+import java.text.DecimalFormat;
+
 public class TrackedBook extends Book{
     private int userId;
     private String status;
     private int pagesRead;
     private double progress;
 
-    public TrackedBook(int userId, Book book, String status, int pagesRead)
+    public TrackedBook(int userId, Book book, int pagesRead)
     {
         super(book.getId(), book.getTitle(), book.getGenre(), book.getAuthor(), book.getPages());
         this.userId = userId;
-        this.status = status;
         this.pagesRead = pagesRead;
 
         updateProgress();
@@ -18,11 +19,11 @@ public class TrackedBook extends Book{
 
     public void updateProgress()
     {
-        progress = (pagesRead / this.getPages()) * 100;
+        progress = ((double)pagesRead * 100) / (double)super.getPages();
 
         
         if(progress == 100)
-            setStatus("Finished");
+            setStatus("Completed");
         else if(progress == 0)
             setStatus("Not Started");
         else
@@ -65,4 +66,28 @@ public class TrackedBook extends Book{
         return progress;
     }
     
+    public String toString()
+    {
+        DecimalFormat df = new DecimalFormat("###.##");
+        StringBuilder sb = new StringBuilder(super.getTitle() + ", by " + super.getAuthor());
+        int spaces = 50 - sb.length();
+        if(spaces < 0)
+            spaces = 2;
+        for(int i = 0; i < spaces; i++)
+            sb.append(" ");
+        sb.append("[ID: "+ super.getId() + " Progress: " + df.format(progress) + "%");
+        spaces = 80 - sb.length();
+        for(int i = 0; i < spaces; i++)
+            sb.append(" ");
+        sb.append("Pages Read: " + pagesRead + "/" + super.getPages());
+        spaces = 101 - sb.length();
+        for(int i = 0; i < spaces; i++)
+            sb.append(" ");
+        sb.append( "Status: " + status);
+        spaces = 120 - sb.length();
+        for(int i = 0; i < spaces; i++)
+            sb.append(" ");
+        sb.append("]");
+        return sb.toString();
+    }
 }
