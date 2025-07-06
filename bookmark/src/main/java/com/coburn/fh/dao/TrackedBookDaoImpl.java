@@ -264,7 +264,7 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
     @Override
     public void add(TrackedBook book) throws BookNotCreatedException, PageOutOfBoundsException
     {
-        if(book.getPagesRead() > book.getPages() || book.getPagesRead() < book.getPages())
+        if(book.getPagesRead() > book.getPages() || book.getPagesRead() < 0)
             throw new PageOutOfBoundsException(book.getPagesRead());
         book.updateProgress();
 
@@ -366,18 +366,16 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
             connection = ConnectionManager.getConnection();
             PreparedStatement pStmt = connection.prepareStatement("SELECT user_id, AVG(progress) FROM tracked_book WHERE user_id = " + userId + " GROUP BY user_id");
 
-			//pStmt.setInt(1, id);
-
             ResultSet rs = pStmt.executeQuery();
-			
+			rs.next();
+            
             if(!rs.wasNull())
             {
-                rs.next();
 
                 return rs.getDouble(2);
             }
         } catch(SQLException e) {
-            System.out.println(e.getMessage());
+            System.out.println(e.getMessage()); 
         } catch (Exception e) {
             e.printStackTrace();
         }

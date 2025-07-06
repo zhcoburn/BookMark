@@ -97,14 +97,14 @@ public class UserDaoImpl implements UserDao{
     public boolean update(User user) throws InvalidInputException
     {
         // Start by checking the name, username and password to ensure there isn't SQL injection
-        if(user.getName().contains(" ") || user.getName().contains(";") || user.getUsername().contains(" ") || user.getUsername().equals("0") || user.getUsername().contains(";") || user.getUserpass().contains(" ") || user.getUserpass().contains(";"))
+        if(user.getName().contains(";") || user.getUsername().contains(" ") || user.getUsername().equals("0") || user.getUsername().contains(";") || user.getUserpass().contains(" ") || user.getUserpass().contains(";"))
             throw new InvalidInputException();
         try{
 			connection = ConnectionManager.getConnection();
 
             PreparedStatement pStmt = connection.prepareStatement("UPDATE user SET name = \"" + user.getName() +
-			 "\", username = \"" + user.getUsername() + "\", userpass = " + user.getUserpass() + 
-			 ", progress = " + user.getProgress() + " WHERE user_id = " + user.getId());
+			 "\", username = \"" + user.getUsername() + "\", userpass = \"" + user.getUserpass() + 
+			 "\", progress = " + user.getProgress() + " WHERE user_id = " + user.getId());
 			
 			pStmt.executeUpdate();
 
@@ -145,7 +145,7 @@ public class UserDaoImpl implements UserDao{
     public void add(User user) throws UserNotCreatedException, InvalidInputException
     {
         // Start by checking the name, username and password to ensure there isn't SQL injection
-        if(user.getName().contains(" ") || user.getName().contains(";") || user.getUsername().contains(" ") || user.getUsername().equals("0") || user.getUsername().contains(";") || user.getUserpass().contains(" ") || user.getUserpass().contains(";"))
+        if(user.getName().contains(";") || user.getUsername().contains(" ") || user.getUsername().equals("0") || user.getUsername().contains(";") || user.getUserpass().contains(" ") || user.getUserpass().contains(";"))
             throw new InvalidInputException();
         try{
 			connection = ConnectionManager.getConnection();
