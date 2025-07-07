@@ -1,13 +1,13 @@
 # BookMark API - Cognixia Capstone Project
 This is the Backend API of a Java Maven project built for JDBC to interact with SQL as a capstone for Cognixia Future Horizons. This project stores a database of users, trackers and books, and allows users to manage a list of books that they have read, are currently reading, or plan to read. This will allow the user to see their progress with their reading list through a console-based interface.
 
---
+---
 
 ## Project Objective
 
 To create a functional and secure backend application proof-of-concept to maintain persistent data of multiple users and allows each user to create and track a list of books, all using MySQL. This project is an example of my capabilities with SQL and back-end development and can act as a framework for more advanced software design.
 
---
+---
 
 ## Features
 - **Login system for accessing different accounts**
@@ -17,13 +17,13 @@ To create a functional and secure backend application proof-of-concept to mainta
 - **Admin account may add and manage users and books in the available list**
 - **Includes custom exceptions and documentation**
 
---
+---
 
 ## Entity Relationship Diagram
 
 ![ER Diagram Placeholder](./BookMarkERDiagram.png)
 
---
+---
 
 ## How to Run
 
@@ -50,7 +50,7 @@ Using the MySQL workbench (another SQL client may work, too), run `bookmark_db.s
 - Execute the following command: `mvn exec:java`
 - The program should now be running on your console!
 
---
+---
 
 ## Additional Notes
 
@@ -59,7 +59,7 @@ Using the MySQL workbench (another SQL client may work, too), run `bookmark_db.s
 - The user's total progress for the reading list is displayed along with their list of tracked books.
 - Sample code from Cognixia Future Horizons was used to create the ConnectionManager class, but all other files were originally coded by me.
 
---
+---
 
 ## Tools Used
 - **Maven**
@@ -69,7 +69,7 @@ Using the MySQL workbench (another SQL client may work, too), run `bookmark_db.s
 - **JDBC**
 - **Github (obviously)**
 
---
+---
 
 ## Special Thanks
 
