@@ -2,12 +2,14 @@ package com.coburn.fh.dao;
 
 import java.text.DecimalFormat;
 
+// Child object of Book for junction table, can store necessary information for that table as well as the book's information
 public class TrackedBook extends Book{
     private int userId;
     private String status;
     private int pagesRead;
     private double progress;
 
+    // Constructor uses a base book object and adds the necessary missing components for tracker
     public TrackedBook(int userId, Book book, int pagesRead)
     {
         super(book.getId(), book.getTitle(), book.getGenre(), book.getAuthor(), book.getPages());
@@ -17,6 +19,7 @@ public class TrackedBook extends Book{
         updateProgress();
     }
 
+    // Updates the progress value of the book when the page count or pages read value is updated to reflect the percentage read
     public void updateProgress()
     {
         progress = ((double)pagesRead * 100) / (double)super.getPages();
@@ -29,6 +32,8 @@ public class TrackedBook extends Book{
         else
             setStatus("In Progress");
     }
+
+    //Getters and setters
 
     public int getUserId() {
         return userId;
@@ -50,11 +55,13 @@ public class TrackedBook extends Book{
         return pagesRead;
     }
 
+    // Setter for pages read automatically updates the progress of the book
     public void setPagesRead(int pagesRead) {
         this.pagesRead = pagesRead;
         updateProgress();
     }
 
+    // Setter for page count automatically updates the progress of the book
     @Override
     public void setPages(int pages)
     {
@@ -66,6 +73,7 @@ public class TrackedBook extends Book{
         return progress;
     }
     
+    // Custom toString formats the book and its details to be read normally with well-spaced supplementary information
     public String toString()
     {
         DecimalFormat df = new DecimalFormat("###.##");

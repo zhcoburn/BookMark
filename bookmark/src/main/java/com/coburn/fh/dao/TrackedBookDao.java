@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
+// Dao for interacting with tracked_book items in the database
 public interface TrackedBookDao {
     // needed for later so we make sure that the connection manager gets called
 	public void establishConnection() throws ClassNotFoundException, SQLException;

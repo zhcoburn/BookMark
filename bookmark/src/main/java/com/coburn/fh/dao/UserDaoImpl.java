@@ -10,10 +10,12 @@ import java.util.Optional;
 
 import com.coburn.fh.connection.ConnectionManager;
 
+// Implementation of BookDao, used to interact specifically with the book table of the BookMark database
 public class UserDaoImpl implements UserDao{
 
     private Connection connection = null;
 
+    // Get the connection to the database
 	@Override
 	public void establishConnection() throws ClassNotFoundException, SQLException {
 		
@@ -22,11 +24,13 @@ public class UserDaoImpl implements UserDao{
 		}
 	}
 	
+    // End the connection to the database
 	@Override
 	public void closeConnection() throws SQLException {
 		connection.close();
 	}
 
+    // Returns all contents of the user table
     @Override
     public List<User> getAll()
     {
@@ -61,6 +65,7 @@ public class UserDaoImpl implements UserDao{
         return null;
     }
 
+    // Finds a specified user from the user table by its id
     @Override
     public Optional<User> findById(int id)
     {
@@ -93,12 +98,48 @@ public class UserDaoImpl implements UserDao{
 		return Optional.empty();
     }
 
+    // Finds a specified user from the user table by its id
     @Override
-    public boolean update(User user) throws InvalidInputException
+    public Optional<User> findByUsername(String username)
+    {
+        try{
+            connection = ConnectionManager.getConnection();
+            PreparedStatement pStmt = connection.prepareStatement("SELECT * FROM user WHERE username = \"" + username + "\"");
+
+            ResultSet rs = pStmt.executeQuery();
+			
+			rs.next();
+
+            int id = rs.getInt(1);
+            String name = rs.getString(2);
+			String userpass = rs.getString(4);
+			double progress = rs.getDouble(5);
+
+            User u = new User(id, name, username, userpass, progress);
+            Optional<User> found = Optional.of(u);
+
+            return found;
+
+        } catch(SQLException e) {
+            System.out.println(e.getMessage());;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+		return Optional.empty();
+    }
+
+    // Updates user credentials based on passed object; returns true if successfully updated, false if failed
+    @Override
+    public boolean update(User user) throws InvalidInputException, DuplicateUsernameException
     {
         // Start by checking the name, username and password to ensure there isn't SQL injection
         if(user.getName().contains(";") || user.getUsername().contains(" ") || user.getUsername().equals("0") || user.getUsername().contains(";") || user.getUserpass().contains(" ") || user.getUserpass().contains(";"))
             throw new InvalidInputException();
+        Optional<User> compareUser = findByUsername(user.getUsername());
+            // Check to see if the username already exists in the table and that username doesn't belong to the same id
+        if(!compareUser.isEmpty() && compareUser.get().getId() != (user.getId()))
+            throw new DuplicateUsernameException(user.getUsername());
         try{
 			connection = ConnectionManager.getConnection();
 
@@ -117,7 +158,7 @@ public class UserDaoImpl implements UserDao{
 		return false;
     }
     
-
+    // Deletes a user with the given id from the user table. Returns true if deletion successful, and false if failed.
     @Override
     public boolean delete(int id)
     {
@@ -141,12 +182,17 @@ public class UserDaoImpl implements UserDao{
 		return false;
     }
 
+    //Adds a user to the user table based on passed User object. Throws exception if the creation failed or the input contains illegal characters.
     @Override
-    public void add(User user) throws UserNotCreatedException, InvalidInputException
+    public void add(User user) throws UserNotCreatedException, InvalidInputException, DuplicateUsernameException
     {
         // Start by checking the name, username and password to ensure there isn't SQL injection
         if(user.getName().contains(";") || user.getUsername().contains(" ") || user.getUsername().equals("0") || user.getUsername().contains(";") || user.getUserpass().contains(" ") || user.getUserpass().contains(";"))
             throw new InvalidInputException();
+        
+        // Check to see if the username already exists in the table
+        if(!findByUsername(user.getUsername()).isEmpty())
+            throw new DuplicateUsernameException(user.getUsername());
         try{
 			connection = ConnectionManager.getConnection();
 
@@ -163,6 +209,7 @@ public class UserDaoImpl implements UserDao{
         }
     }
 
+    // Looks up the passed values to see if username and password combination exists, passes the account if login succeeds
     @Override
     public Optional<User> logIn(String username, String pass) throws InvalidInputException
     {

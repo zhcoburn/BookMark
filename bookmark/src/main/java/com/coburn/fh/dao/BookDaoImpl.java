@@ -10,9 +10,11 @@ import java.util.Optional;
 
 import com.coburn.fh.connection.ConnectionManager;
 
+// Implementation of BookDao, used to interact specifically with the book table of the BookMark database
 public class BookDaoImpl implements BookDao{
     private Connection connection = null;
 
+// Get the connection to the database
 	@Override
 	public void establishConnection() throws ClassNotFoundException, SQLException {
 		
@@ -20,12 +22,14 @@ public class BookDaoImpl implements BookDao{
 			connection = ConnectionManager.getConnection();
 		}
 	}
-	
+
+// End the connection to the database
 	@Override
 	public void closeConnection() throws SQLException {
 		connection.close();
 	}
 
+    // Returns all contents of the book table
     @Override
     public List<Book> getAll()
     {
@@ -60,14 +64,13 @@ public class BookDaoImpl implements BookDao{
         return null;
     }
 
+    // Returns a single optional-encased book object from the book table using its id as an identifier
     @Override
     public Optional<Book> findById(int id)
     {
         try{
             connection = ConnectionManager.getConnection();
             PreparedStatement pStmt = connection.prepareStatement("SELECT * FROM book WHERE book_id = " + id);
-
-			//pStmt.setInt(1, id);
 
             ResultSet rs = pStmt.executeQuery();
 			
@@ -92,14 +95,13 @@ public class BookDaoImpl implements BookDao{
 		return Optional.empty();
     }
 
+    // Uses a book's title to retrieve its information as an optional-encased book object from the book table
     @Override
     public Optional<Book> findByTitle(String title)
     {
         try{
             connection = ConnectionManager.getConnection();
             PreparedStatement pStmt = connection.prepareStatement("SELECT * FROM book WHERE title = " + title);
-
-			//pStmt.setInt(1, id);
 
             ResultSet rs = pStmt.executeQuery();
 			
@@ -124,6 +126,7 @@ public class BookDaoImpl implements BookDao{
 		return Optional.empty();
     }
 
+    // Alters the contents of an entry from the book table using a passed book object and its id. Returns true if successful, false if failed.
     @Override
     public boolean update(Book book) throws InvalidInputException
     {
@@ -145,7 +148,7 @@ public class BookDaoImpl implements BookDao{
 		return false;
     }
     
-
+    // Removes a book with the given id from the book table. Returns true if delete was successful, and false if it failed.
     @Override
     public boolean delete(int id)
     {
@@ -168,7 +171,8 @@ public class BookDaoImpl implements BookDao{
         }
 		return false;
     }
-
+    
+    // Creates a new book to add to the book table using a passed Book object
     @Override
     public void add(Book book) throws BookNotCreatedException, InvalidInputException
     {
@@ -188,6 +192,7 @@ public class BookDaoImpl implements BookDao{
         }
     }
 
+    // Gets the books that fall under a specified genre from the book table
     @Override
     public List<Book> getByGenre(String genre) throws InvalidInputException
     {
@@ -223,6 +228,7 @@ public class BookDaoImpl implements BookDao{
         return null;
     }
 
+    // Gets the books written by a specified author from the book table
     @Override
     public List<Book> getByAuthor(String author) throws InvalidInputException
     {

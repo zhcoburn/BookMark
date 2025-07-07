@@ -1,6 +1,7 @@
 package com.coburn.fh.controller;
 
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -8,6 +9,7 @@ import java.util.Scanner;
 import com.coburn.fh.dao.Book;
 import com.coburn.fh.dao.BookDaoImpl;
 import com.coburn.fh.dao.BookNotCreatedException;
+import com.coburn.fh.dao.DuplicateUsernameException;
 import com.coburn.fh.dao.InvalidInputException;
 import com.coburn.fh.dao.PageOutOfBoundsException;
 import com.coburn.fh.dao.TrackedBook;
@@ -16,13 +18,17 @@ import com.coburn.fh.dao.User;
 import com.coburn.fh.dao.UserDaoImpl;
 import com.coburn.fh.dao.UserNotCreatedException;
 
+// Main controller through which most of the app logic takes place
 public class AppController {
+
+    //Daos for interacting which each table, the scanner for user input, and the current user active
     private UserDaoImpl userDao;
     private BookDaoImpl bookDao;
     private TrackedBookDaoImpl trackerDao;
     private Scanner input;
     private User activeUser;
 
+    // Constructor for initializing the Dao objects and the scanner
     public AppController(UserDaoImpl userDao, BookDaoImpl bookDao, TrackedBookDaoImpl trackerDao) {
         this.userDao = userDao;
         this.bookDao = bookDao;
@@ -30,6 +36,7 @@ public class AppController {
         input = new Scanner(System.in);
     }
     
+    //Login loop for entering into the main menu and connecting to a user account
     public boolean attemptLogin()
     {
         boolean loginCycle = true;
@@ -59,14 +66,17 @@ public class AppController {
             }
         }
         activeUser = userLogin.get();
+        updateUserProgress(activeUser);
         return true;
     }
 
+    // Returns the active user
     public User getActiveUser()
     {
         return activeUser;
     }
 
+    // Lists the active user's tracked books and their total progress
     public void viewMyBooks()
     {
         List<TrackedBook> myBooks = trackerDao.getAll(activeUser.getId());
@@ -74,9 +84,11 @@ public class AppController {
         for(TrackedBook tb : myBooks)
             System.out.println(tb);
         
-        System.out.println("\nTotal progress: " + activeUser.getProgress());
+        DecimalFormat df = new DecimalFormat("###.##");
+        System.out.println("\nTotal progress: " + df.format(activeUser.getProgress()) + "%");
     }
 
+    // Allows the user to update the progress on a specific tracked book by changing its page count.
     public void updateBookProgress()
     {
         while(true)
@@ -115,6 +127,7 @@ public class AppController {
         }
     }
 
+    // Updates the active user's total progress value
     public void updateUserProgress(User user)
     {
         user.setProgress(trackerDao.getTotalProgress(activeUser.getId()));
@@ -123,9 +136,14 @@ public class AppController {
         } catch (InvalidInputException e)
         {
             System.out.println("Could not update user progress.");
+        } catch (DuplicateUsernameException e)
+        {
+            System.out.println("The username " + user.getUsername() + " is already taken.");
         }
+        
     }
 
+    // Adds a book to the active user's tracker from the list of available books from the database
     public void addBookToList()
     {
         while(true)
@@ -168,6 +186,7 @@ public class AppController {
         }
     }
 
+    // Allows the user to remove a given book from their tracker list
     public void removeBookFromList()
     {
         while(true)
@@ -190,6 +209,7 @@ public class AppController {
         }
     }
 
+    // Admin function. Adds a book to the available book list.
     public void addBook()
     {
         System.out.print("Please enter the book's title: ");
@@ -216,6 +236,7 @@ public class AppController {
         }
     }
 
+    // Admin function. Removes a book from the available book list.
     public void removeBook()
     {
         while(true)
@@ -238,6 +259,7 @@ public class AppController {
         }
     }
 
+    // Admin function. Changes the details of a book from the available book list.
     public void modifyBook()
     {
         System.out.print("Please enter the book's id: ");
@@ -263,6 +285,7 @@ public class AppController {
         }
     }
 
+    // Admin function. Contains the menu to add, modify or delete a user in regards to the user table.
     public void manipulateUser()
     {
         List<User> users = userDao.getAll();
@@ -311,6 +334,7 @@ public class AppController {
         }   
     }
 
+    // Allows a non-admin active user to change their name, username or password.
     public void modifyMyAccount()
     {
         
@@ -343,7 +367,11 @@ public class AppController {
                         }  catch(InvalidInputException e)
                         {
                             System.out.println("Illegal characters used, could not update");
+                        }  catch(DuplicateUsernameException e)
+                        {
+                            System.out.println("The username " + replaceUser.getUsername() + " is already taken.");
                         }
+
                     }
                     break;
                 case 2:
@@ -360,6 +388,9 @@ public class AppController {
                         }  catch(InvalidInputException e)
                         {
                             System.out.println("Illegal characters used, could not update");
+                        } catch(DuplicateUsernameException e)
+                        {
+                            System.out.println("The username " + replaceUser.getUsername() + " is already taken.");
                         }
                     }
                     break;
@@ -376,6 +407,9 @@ public class AppController {
                         }  catch(InvalidInputException e)
                         {
                             System.out.println("Illegal characters used, could not update");
+                        } catch(DuplicateUsernameException e)
+                        {
+                            System.out.println("The username " + replaceUser.getUsername() + " is already taken.");
                         }
                     }
                     break;
@@ -389,6 +423,7 @@ public class AppController {
         }   
     }
 
+    // Admin function. Allows the creation of a new user or the modification of an existing user's details.
     public boolean modifyUser(int id, boolean isNew)
     {
         System.out.print("Please enter the account holder's name: ");
@@ -404,6 +439,11 @@ public class AppController {
                 userDao.add(user);
             }
             catch(InvalidInputException e)
+            {
+                System.out.println(e.getMessage());
+                return false;
+            }
+            catch(DuplicateUsernameException e)
             {
                 System.out.println(e.getMessage());
                 return false;
@@ -424,10 +464,16 @@ public class AppController {
                     System.out.println(e.getMessage());
                     return false;
                 }
+                catch(DuplicateUsernameException e)
+                {
+                    System.out.println(e.getMessage());
+                    return false;
+                }
         }
         return true;
     }
 
+    // Deletes a user using a given id. Uses the active user's id if non-admin, and a passed user ID if admin.
     public boolean deleteUser(int id)
     {
         System.out.println("Are you sure? This action cannot be reversed. (Type your password to confirm, or 0 to cancel.)");
@@ -450,11 +496,11 @@ public class AppController {
         return false;
     }
     
+    // Method to quickly verify the credentials of the active user before making sensitive changes to the user account
     public boolean verifyUser()
     {
         System.out.println("Please enter your password to continue: ");
         String password = input.nextLine();
-        System.out.println("You entered " + password);
         if(password.equals(activeUser.getUserpass()))
         {
             return true;
@@ -466,6 +512,7 @@ public class AppController {
         }
     }
     
+    // Main menu, where all options are selected. Includes additional options if the active user is admin. Only returns false on exit code.
     public boolean mainMenu()
     {
         int selection = input.nextInt();
@@ -473,51 +520,61 @@ public class AppController {
         switch(selection)
         {
             case 0:
+                // Exit code
                 return false;
             case 1:
+                // Views the list of available books to add to tracker
                 List<Book> allBooks = bookDao.getAll();
                 for(Book b : allBooks)
                     System.out.println(b);
                 break;
             case 2:
+                // Views the user's tracked books and overall progress
                 viewMyBooks();
                 break;
             case 3:
+                // Updates the pages read of a book on the user's tracker
                 updateBookProgress();
                 updateUserProgress(activeUser);
                 break;
             case 4:
+                // Adds a book from the user's tracker
                 addBookToList();
                 updateUserProgress(activeUser);;
                 break;
             case 5:
+                // Removes a book from the user's tracker
                 removeBookFromList();
                 updateUserProgress(activeUser);
                 break;
             case 6:
+                // Admin option to add books to the available list, only appears if admin is active
                 if(activeUser.getId() == 10000)
                 {
                     addBook();
                     break;
                 }
             case 7:
+                // Admin option to remove books from the available list, only appears if admin is active
                 if(activeUser.getId() == 10000)
                 {
                     removeBook();
                     break;
                 }
             case 8:
+                // Admin option to modify books in the available list, only appears if admin is active
                 if(activeUser.getId() == 10000)
                 {
                     modifyBook();
                     break;
                 }
             case 9:
+                // Admin option, only behaves this way if admin is active
                 if(activeUser.getId() == 10000)
                 {
                     manipulateUser();
                     break;
-                }
+                } // Otherwise gives standard modification options to active user
                 else
                 {
                     modifyMyAccount();

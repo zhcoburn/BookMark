@@ -1,12 +1,15 @@
 package com.coburn.fh.dao;
 
+// User class to represent users in the BookMark database
 public class User {
+    // Private attributes
     private int id;
     private String name;
     private String username;
     private String userpass;
     private double progress;
 
+    // Constructor; progress value is arbritrary and will automatically update later
     public User(int id, String name, String username, String userpass, double progress)
     {
         this.id = id;
@@ -15,6 +18,8 @@ public class User {
         this.userpass = userpass;
         this.progress = progress;
     }
+
+    // Getters and setters
 
     public int getId() {
         return id;
@@ -56,6 +61,7 @@ public class User {
         this.progress = progress;
     }
 
+    // toString
     public String toString()
     {
         return ("[ID: " + id + ", Name: " + name + ", Username: " + username + ", Password: " + userpass + ", List Progress: " + progress + "]");
