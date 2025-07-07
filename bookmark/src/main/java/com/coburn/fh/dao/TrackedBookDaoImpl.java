@@ -147,6 +147,43 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
         return null;
     }
 
+    //Finds all instances of a book being tracked throughout all users
+    @Override
+    public List<TrackedBook> getAllByBook(int bookId)
+    {
+        try{
+            connection = ConnectionManager.getConnection();
+            PreparedStatement pStmt = connection.prepareStatement("SELECT * FROM tracked_book LEFT JOIN book ON tracked_book.book_id = book.book_id WHERE tracked_book.book_id = " + bookId);
+
+            ResultSet rs = pStmt.executeQuery();
+
+            List<TrackedBook> books = new ArrayList<>();
+
+            while(rs.next()) {
+                int userId = rs.getInt(1);
+                int pagesRead = rs.getInt(4);
+                String title = rs.getString(7);
+                String genre = rs.getString(8);
+				String author = rs.getString(9);
+				int pages = rs.getInt(10);
+
+
+                Book b = new Book(bookId, title, genre, author, pages);
+                TrackedBook tb = new TrackedBook(userId, b, pagesRead);
+                books.add(tb);
+            }
+
+            return books;
+
+        } catch(SQLException e) {
+            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     // Finds a specific tracked book for the active user based on its id
     @Override
     public Optional<TrackedBook> findById(int userId, int bookId)

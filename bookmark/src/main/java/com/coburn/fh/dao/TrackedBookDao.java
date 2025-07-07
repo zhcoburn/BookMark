@@ -16,6 +16,8 @@ public interface TrackedBookDao {
 
     public List<TrackedBook> getAllOrdered(int userId, int filter);
 
+    public List<TrackedBook> getAllByBook(int bookId);
+
     public Optional<TrackedBook> findById(int userId, int bookId);
 
     public Optional<TrackedBook> findByTitle(int userId, String title) throws InvalidInputException;

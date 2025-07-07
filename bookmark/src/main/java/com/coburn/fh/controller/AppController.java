@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
+import javax.sound.midi.Track;
+
 import com.coburn.fh.dao.Book;
 import com.coburn.fh.dao.BookDaoImpl;
 import com.coburn.fh.dao.BookNotCreatedException;
@@ -258,6 +260,16 @@ public class AppController {
                 System.out.println("There is no book with that ID");
                 continue;
             }
+
+            // Deletes all tracked instances of the book before deleting it from the book table
+            // This is to prevent foreign key constraint violations
+            List<TrackedBook> trackedBooks = trackerDao.getAllByBook(id);
+            for(TrackedBook book : trackedBooks)
+            {
+                trackerDao.delete(book.getUserId(), book.getId());
+            }
+
+            // Deletes the book from the book table
             if(bookDao.delete(id))
                 return;
             else
