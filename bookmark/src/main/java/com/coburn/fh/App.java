@@ -68,5 +68,14 @@ public class App
             
             loggedIn = control.mainMenu();
         }
+        try{
+            userDao.closeConnection();
+            bookDao.closeConnection();
+            trackerDao.closeConnection();
+        } catch(SQLException e)
+        {
+            e.printStackTrace();
+        }
+        com.mysql.cj.jdbc.AbandonedConnectionCleanupThread.checkedShutdown();
     }
 }

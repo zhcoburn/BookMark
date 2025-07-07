@@ -124,7 +124,6 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
 
             while(rs.next()) {
                 int bookId = rs.getInt(2);
-                String status = rs.getString(3);
                 int pagesRead = rs.getInt(4);
                 String title = rs.getString(7);
                 String genre = rs.getString(8);
@@ -160,20 +159,22 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
 
             ResultSet rs = pStmt.executeQuery();
 			
-			rs.next();
+			if(rs.next())
+            {
+                int pagesRead = rs.getInt(4);
+                String title = rs.getString(7);
+                String genre = rs.getString(8);
+                String author = rs.getString(9);
+                int pages = rs.getInt(10);
 
-            String status = rs.getString(3);
-            int pagesRead = rs.getInt(4);
-            String title = rs.getString(7);
-            String genre = rs.getString(8);
-			String author = rs.getString(9);
-			int pages = rs.getInt(10);
+                Book b = new Book(bookId, title, genre, author, pages);
+                TrackedBook tb = new TrackedBook(userId, b, pagesRead);
+                Optional<TrackedBook> found = Optional.of(tb);
 
-            Book b = new Book(bookId, title, genre, author, pages);
-            TrackedBook tb = new TrackedBook(userId, b, pagesRead);
-            Optional<TrackedBook> found = Optional.of(tb);
+                return found;
+            }
 
-            return found;
+            
 
         } catch(SQLException e) {
         } catch (Exception e) {
@@ -197,20 +198,23 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
 
             ResultSet rs = pStmt.executeQuery();
 			
-			rs.next();
+			if(rs.next())
+            {
+                int bookId = rs.getInt(2);
+                String status = rs.getString(3);
+                int pagesRead = rs.getInt(4);
+                String genre = rs.getString(8);
+                String author = rs.getString(9);
+                int pages = rs.getInt(10);
 
-            int bookId = rs.getInt(2);
-            String status = rs.getString(3);
-            int pagesRead = rs.getInt(4);
-            String genre = rs.getString(8);
-			String author = rs.getString(9);
-			int pages = rs.getInt(10);
+                Book b = new Book(bookId, title, genre, author, pages);
+                TrackedBook tb = new TrackedBook(userId, b, pagesRead);
+                Optional<TrackedBook> found = Optional.of(tb);
 
-            Book b = new Book(bookId, title, genre, author, pages);
-            TrackedBook tb = new TrackedBook(userId, b, pagesRead);
-            Optional<TrackedBook> found = Optional.of(tb);
+                return found;
+            }
 
-            return found;
+            
 
         } catch(SQLException e) {
         } catch (Exception e) {
@@ -379,11 +383,9 @@ public class TrackedBookDaoImpl implements TrackedBookDao{
             PreparedStatement pStmt = connection.prepareStatement("SELECT user_id, AVG(progress) FROM tracked_book WHERE user_id = " + userId + " GROUP BY user_id");
 
             ResultSet rs = pStmt.executeQuery();
-			rs.next();
 
-            if(!rs.wasNull())
+			if(rs.next())
             {
-
                 return rs.getDouble(2);
             }
         } catch(SQLException e) {

@@ -2,6 +2,7 @@ package com.coburn.fh.controller;
 
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -48,7 +49,11 @@ public class AppController {
             String username = input.nextLine();
 
             if(username.equals("0"))
+            {
+                input.close();
                 return false;
+            }
+
             System.out.println("Please enter your password: ");
             String password = input.nextLine();
 
@@ -178,7 +183,8 @@ public class AppController {
                 }
                 catch(BookNotCreatedException e)
                 {
-                    System.out.println("Could not add this book");
+                    System.out.println("Could not add this book. It is possible you already added this book.");
+                    break;
                 }
             }
             if(pagesRead == -1)
@@ -315,6 +321,11 @@ public class AppController {
                     input.nextLine();
                     if(id == 10000)
                         System.out.println("Cannot change admin");
+                    else if(userDao.findById(id).isEmpty())
+                    {
+                        System.out.println("There is no user with that ID");
+                        continue;
+                    }
                     else if(modifyUser(id, false))
                         return;
                     break;
@@ -324,6 +335,11 @@ public class AppController {
                     input.nextLine();
                     if(id == 10000)
                         System.out.println("Cannot delete admin");
+                    else if(userDao.findById(id).isEmpty())
+                    {
+                        System.out.println("There is no user with that ID");
+                        continue;
+                    }
                     else if(deleteUser(id))
                         return;
                     break;
@@ -335,7 +351,8 @@ public class AppController {
     }
 
     // Allows a non-admin active user to change their name, username or password.
-    public void modifyMyAccount()
+    // Returns a boolean to indicate if the account was deleted or not.
+    public boolean modifyMyAccount()
     {
         
         while(true)
@@ -353,7 +370,7 @@ public class AppController {
             switch(option)
             {
                 case 0:
-                    return;
+                    return false;
                 case 1:
                     if(verifyUser())
                     {
@@ -363,7 +380,7 @@ public class AppController {
                         try{
                             userDao.update(replaceUser);
                             activeUser = replaceUser;
-                            return;
+                            return false;
                         }  catch(InvalidInputException e)
                         {
                             System.out.println("Illegal characters used, could not update");
@@ -380,11 +397,11 @@ public class AppController {
                         System.out.println("Please input the new username: ");
                         replaceString = input.nextLine();
                         
-                        replaceUser = new User(activeUser.getId(), replaceString, activeUser.getUsername(), activeUser.getUserpass(), activeUser.getProgress());
+                        replaceUser = new User(activeUser.getId(), activeUser.getName(), replaceString, activeUser.getUserpass(), activeUser.getProgress());
                         try{
                             userDao.update(replaceUser);
                             activeUser = replaceUser;
-                            return;
+                            return false;
                         }  catch(InvalidInputException e)
                         {
                             System.out.println("Illegal characters used, could not update");
@@ -399,11 +416,11 @@ public class AppController {
                     {
                         System.out.println("Please input the new password: ");
                         replaceString = input.nextLine();
-                        replaceUser = new User(activeUser.getId(), replaceString, activeUser.getUsername(), activeUser.getUserpass(), activeUser.getProgress());
+                        replaceUser = new User(activeUser.getId(), activeUser.getName(), activeUser.getUsername(), replaceString, activeUser.getProgress());
                         try{
                             userDao.update(replaceUser);
                             activeUser = replaceUser;
-                            return;
+                            return false;
                         }  catch(InvalidInputException e)
                         {
                             System.out.println("Illegal characters used, could not update");
@@ -415,7 +432,7 @@ public class AppController {
                     break;
                 case 7:
                     if(deleteUser(activeUser.getId()))
-                        return;
+                        return true;
                     break;
                 default:
                     System.out.println("Invalid operation");
@@ -515,12 +532,15 @@ public class AppController {
     // Main menu, where all options are selected. Includes additional options if the active user is admin. Only returns false on exit code.
     public boolean mainMenu()
     {
+        try{
+
         int selection = input.nextInt();
         input.nextLine();
         switch(selection)
         {
             case 0:
                 // Exit code
+                input.close();
                 return false;
             case 1:
                 // Views the list of available books to add to tracker
@@ -573,17 +593,22 @@ public class AppController {
                 if(activeUser.getId() == 10000)
                 {
                     manipulateUser();
-                    break;
+                    return true;
                 } // Otherwise gives standard modification options to active user
                 else
                 {
-                    modifyMyAccount();
-                    break;
+                    return (!modifyMyAccount());
                 }
             default:
                 System.out.println("That is an invalid operation.");
                 break;
 
+        }
+    }
+        catch(InputMismatchException e)
+        {
+            System.out.println("That is not a valid input. Please try again.");
+            input.nextLine(); // Clear the invalid input
         }
 
         System.out.println("Enter any value to continue.");

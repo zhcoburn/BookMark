@@ -77,9 +77,9 @@ public class UserDaoImpl implements UserDao{
 
             ResultSet rs = pStmt.executeQuery();
 			
-			rs.next();
-
-            String name = rs.getString(2);
+			if(rs.next())
+            {
+                String name = rs.getString(2);
             String username = rs.getString(3);
 			String userpass = rs.getString(4);
 			double progress = rs.getDouble(5);
@@ -88,7 +88,7 @@ public class UserDaoImpl implements UserDao{
             Optional<User> found = Optional.of(u);
 
             return found;
-
+            }
         } catch(SQLException e) {
             System.out.println(e.getMessage());;
         } catch (Exception e) {
@@ -108,18 +108,18 @@ public class UserDaoImpl implements UserDao{
 
             ResultSet rs = pStmt.executeQuery();
 			
-			rs.next();
+			if(rs.next())
+            {
+                int id = rs.getInt(1);
+                String name = rs.getString(2);
+                String userpass = rs.getString(4);
+                double progress = rs.getDouble(5);
 
-            int id = rs.getInt(1);
-            String name = rs.getString(2);
-			String userpass = rs.getString(4);
-			double progress = rs.getDouble(5);
+                User u = new User(id, name, username, userpass, progress);
+                Optional<User> found = Optional.of(u);
 
-            User u = new User(id, name, username, userpass, progress);
-            Optional<User> found = Optional.of(u);
-
-            return found;
-
+                return found;
+            }
         } catch(SQLException e) {
             System.out.println(e.getMessage());;
         } catch (Exception e) {
@@ -138,8 +138,9 @@ public class UserDaoImpl implements UserDao{
             throw new InvalidInputException();
         Optional<User> compareUser = findByUsername(user.getUsername());
             // Check to see if the username already exists in the table and that username doesn't belong to the same id
-        if(!compareUser.isEmpty() && compareUser.get().getId() != (user.getId()))
-            throw new DuplicateUsernameException(user.getUsername());
+        if(!compareUser.isEmpty())
+            if(compareUser.get().getId() != (user.getId()))
+                throw new DuplicateUsernameException(user.getUsername());
         try{
 			connection = ConnectionManager.getConnection();
 
@@ -151,7 +152,7 @@ public class UserDaoImpl implements UserDao{
 
 			return true;
 		}catch(SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -225,9 +226,9 @@ public class UserDaoImpl implements UserDao{
 
             ResultSet rs = pStmt.executeQuery();
 			
-			rs.next();
-
-            int id = rs.getInt(1);
+			if(rs.next())
+            {
+                int id = rs.getInt(1);
             String name = rs.getString(2);
 			double progress = rs.getDouble(5);
 
@@ -235,7 +236,8 @@ public class UserDaoImpl implements UserDao{
             Optional<User> found = Optional.of(u);
 
             return found;
-
+            }
+            
         } catch(SQLException e) {
         } catch (Exception e) {
             e.printStackTrace();

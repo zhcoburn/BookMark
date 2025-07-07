@@ -74,17 +74,19 @@ public class BookDaoImpl implements BookDao{
 
             ResultSet rs = pStmt.executeQuery();
 			
-			rs.next();
+			if(rs.next())
+            {
+                String title = rs.getString(2);
+                String genre = rs.getString(3);
+                String author = rs.getString(4);
+                int pages = rs.getInt(5);
 
-            String title = rs.getString(2);
-            String genre = rs.getString(3);
-			String author = rs.getString(4);
-			int pages = rs.getInt(5);
+                Book b = new Book(id, title, genre, author, pages);
+                Optional<Book> found = Optional.of(b);
 
-            Book b = new Book(id, title, genre, author, pages);
-            Optional<Book> found = Optional.of(b);
-
-            return found;
+                return found;
+            }
+            
 
         } catch(SQLException e) {
             System.out.println(e.getMessage());;
@@ -101,21 +103,23 @@ public class BookDaoImpl implements BookDao{
     {
         try{
             connection = ConnectionManager.getConnection();
-            PreparedStatement pStmt = connection.prepareStatement("SELECT * FROM book WHERE title = " + title);
+            PreparedStatement pStmt = connection.prepareStatement("SELECT * FROM book WHERE name = " + title);
 
             ResultSet rs = pStmt.executeQuery();
 			
-			rs.next();
+			if(rs.next())
+            {
+                int id = rs.getInt(1);
+                String genre = rs.getString(3);
+                String author = rs.getString(4);
+                int pages = rs.getInt(5);
 
-            int id = rs.getInt(1);
-            String genre = rs.getString(3);
-			String author = rs.getString(4);
-			int pages = rs.getInt(5);
+                Book b = new Book(id, title, genre, author, pages);
+                Optional<Book> found = Optional.of(b);
 
-            Book b = new Book(id, title, genre, author, pages);
-            Optional<Book> found = Optional.of(b);
-
-            return found;
+                return found;
+            }
+            
 
         } catch(SQLException e) {
             System.out.println(e.getMessage());;
@@ -133,7 +137,7 @@ public class BookDaoImpl implements BookDao{
         try{
 			connection = ConnectionManager.getConnection();
 
-            PreparedStatement pStmt = connection.prepareStatement("UPDATE book SET title = \"" + book.getTitle() +
+            PreparedStatement pStmt = connection.prepareStatement("UPDATE book SET name = \"" + book.getTitle() +
 			 "\", genre = \"" + book.getGenre() + "\", author = \"" + book.getAuthor() + 
 			 "\", pages = " + book.getPages() + " WHERE book_id = " + book.getId());
 			
@@ -179,7 +183,7 @@ public class BookDaoImpl implements BookDao{
         try{
 			connection = ConnectionManager.getConnection();
 
-            PreparedStatement pStmt = connection.prepareStatement("INSERT INTO book(title, genre, author, pages) VALUES(\"" + book.getTitle() +
+            PreparedStatement pStmt = connection.prepareStatement("INSERT INTO book(name, genre, author, pages) VALUES(\"" + book.getTitle() +
 			 "\", \"" + book.getGenre() + "\", \"" + book.getAuthor() + "\", " + book.getPages() + ")");
 			
 			pStmt.executeUpdate();
